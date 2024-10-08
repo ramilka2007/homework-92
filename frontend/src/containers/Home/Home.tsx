@@ -14,42 +14,45 @@ const Home = () => {
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [onlineUsers, setOnlineUsers] = useState([]);
-    console.log(onlineUsers)
+
+    const reconnect = () => {
+        ws.current = new WebSocket('ws://localhost:8000/chat');
+
+        ws.current.onclose = () => setTimeout(() => {
+            reconnect();
+        }, 1000);
+
+        ws.current.onmessage = (event) => {
+            const decodedMessage = JSON.parse(event.data) as IncomingMessage;
+
+            if (decodedMessage.type === 'ENTERED') {
+                setMessages(decodedMessage.payload);
+
+                if (ws.current) {
+                    ws.current.send(
+                        JSON.stringify({
+                            type: 'ADD_USER',
+                            id: user?._id,
+                            displayName: user?.displayName,
+                        })
+                    );
+                }
+            } else if (decodedMessage.type === 'SET_ONLINE_USERS') {
+                setOnlineUsers(decodedMessage.payload);
+            } else if (decodedMessage.type === 'NEW_MESSAGE') {
+                setMessages((prevState) => [...prevState, decodedMessage.payload]);
+            }
+        }
+        return () => {
+            ws.current?.close();
+        };
+    }
 
     useEffect(() => {
         if (!user) {
             navigate('/register')
         } else {
-            ws.current = new WebSocket('ws://localhost:8000/chat');
-
-            if (!ws.current) {
-                return;
-            }
-
-            ws.current.onmessage = (event) => {
-                const decodedMessage = JSON.parse(event.data) as IncomingMessage;
-
-                if (decodedMessage.type === 'ENTERED') {
-                    setMessages(decodedMessage.payload);
-
-                    if (ws.current) {
-                        ws.current.send(
-                            JSON.stringify({
-                                type: 'ADD_USER',
-                                id: user?._id,
-                                displayName: user?.displayName,
-                            })
-                        );
-                    }
-                } else if (decodedMessage.type === 'SET_ONLINE_USERS') {
-                    setOnlineUsers(decodedMessage.payload);
-                } else if (decodedMessage.type === 'NEW_MESSAGE') {
-                    setMessages((prevState) => [...prevState, decodedMessage.payload]);
-                }
-            }
-            return () => {
-                ws.current?.close();
-            };
+            reconnect();
         }
     }, [user, navigate]);
 
@@ -85,7 +88,7 @@ const Home = () => {
                 <div className='chat'>
                     <Typography variant='h4'>Chat room</Typography>
                 </div>
-                <div className='messages'>
+                <div className='messages' style={{ height: '700px', overflow: 'auto' }}>
                     {
                         messages.map(msg => (
                             <Message
@@ -102,7 +105,7 @@ const Home = () => {
                         <TextField
                             fullWidth={false}
                             label='Message'
-                            sx={{marginX: '20px'}}
+                            style={{marginRight: '20px'}}
                             value={messageText}
                             onChange={(e) => setMessageText(e.target.value)}
                         />

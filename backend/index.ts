@@ -27,8 +27,6 @@ router.ws('/chat', async (ws, _req) => {
     let username: UsersOnline;
     const messages: MessageApi[] = await Message.find().populate('user', 'displayName');
 
-    usersOnline = [];
-
     ws.send(
         JSON.stringify({
             type: 'ENTERED',
@@ -74,8 +72,8 @@ router.ws('/chat', async (ws, _req) => {
                 const messageById = await Message.findOne({ _id: saveMessage._id.toString() }).populate('user', 'displayName');
 
                 Object.values(activeConnections).forEach((connection) => {
-                    const outgoingMessage = { type: 'SEND_MESSAGE', payload: messageById };
-                    connection.send(JSON.stringify(outgoingMessage));
+                    const response = { type: 'SEND_MESSAGE', payload: messageById };
+                    connection.send(JSON.stringify(response));
                 });
                 break;
             default:
@@ -85,6 +83,12 @@ router.ws('/chat', async (ws, _req) => {
 
     ws.on('close', () => {
         console.log('client disconnected! id=', id);
+        usersOnline = usersOnline.filter((user) => user !== username);
+        Object.values(activeConnections).forEach((connection) => {
+            const response = { type: 'SET_ONLINE_USERS', payload: usersOnline };
+            connection.send(JSON.stringify(response));
+        });
+
         delete activeConnections[id];
     });
 });
