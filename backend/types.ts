@@ -1,21 +1,17 @@
-import {Model, Schema} from 'mongoose';
+import {Model} from 'mongoose';
 import {WebSocket} from 'ws';
+import module from "node:module";
 import Types = module
+
 
 export interface ActiveConnections {
     [id: string]: WebSocket
-}
-
-export interface IncomingMessage {
-    type: string;
-    payload: string;
 }
 
 export interface UserFields {
     username: string;
     password: string;
     token: string;
-    role: string;
     displayName: string;
 }
 
@@ -31,4 +27,9 @@ export interface MessageApi {
     message: string;
     user: Types.ObjectId;
     datetime: string;
+}
+
+export interface UsersOnline {
+    _id: string;
+    displayName: string;
 }
