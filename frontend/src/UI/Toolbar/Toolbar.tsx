@@ -13,7 +13,7 @@ const Toolbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <NavLink to="/" className="navbar-brand d-flex ">
-          <p className="me-2 mb-0">Spotify</p>
+          <p className="me-2 mb-0">Chat</p>
         </NavLink>
         <div>
           {user ? (

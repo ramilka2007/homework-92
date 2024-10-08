@@ -4,13 +4,12 @@ import { NavLink } from 'react-router-dom';
 import { User } from '../../types';
 import { useAppDispatch } from '../../app/hooks';
 import { logout } from '../../features/users/usersThunk';
-import { API_URL } from '../../constants';
 
 interface Props {
   user: User;
 }
 
-const UserMenu: React.FC<Props> = ({ user, googleAccount }) => {
+const UserMenu: React.FC<Props> = ({ user }) => {
   const dispatch = useAppDispatch();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 

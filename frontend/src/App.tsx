@@ -4,13 +4,8 @@ import Register from './features/users/Register';
 import Login from './features/users/Login';
 import { Route, Routes } from 'react-router-dom';
 import Toolbar from './UI/Toolbar/Toolbar';
-import ProtectedRoute from './UI/ProtectedRoute/ProtectedRoute';
-import { selectUser } from './features/users/usersSlice';
-import { useAppSelector } from './app/hooks';
 
 const App = () => {
-    const user = useAppSelector(selectUser);
-
     return (
         <>
             <header>
